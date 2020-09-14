@@ -25,6 +25,8 @@
     "serverless-pseudo-parameters": "^2.5.0"
   },
   "dependencies": {
+    "@middy/core": "^1.4.0",
+    "@middy/ssm": "^1.4.0",
     "aws4": "^1.10.1",
     "axios": "^0.20.0",
     "chance": "^1.1.7",
