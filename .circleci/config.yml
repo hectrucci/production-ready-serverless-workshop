@@ -37,6 +37,13 @@ jobs:
       - node/with-cache:
           steps:
             - run: npm run ci:acceptance  # run acceptance tests
+            - run:
+                name: Clean e2e stack on failed acceptance
+                command: |
+                  npm run sls -- remove -s e2e-test
+                  echo "Acceptance Tests failed"
+                  exit 1
+                when: on_fail
   deploy:
     docker:
       - image: circleci/node
@@ -51,7 +58,6 @@ jobs:
     steps:
       - checkout
       - node/with-cache:
-          when: always
           steps:
             - run: npm run sls -- remove -s e2e-test
 
