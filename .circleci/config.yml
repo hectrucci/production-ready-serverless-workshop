@@ -39,7 +39,6 @@ jobs:
           steps:
             - run: npm run dotEnv -- -s e2e-test
             - run: npm run cross-env TEST_MODE=http jest  # run acceptance tests
-
   clean:
     docker:
       - image: circleci/node
@@ -55,8 +54,8 @@ workflows:
     jobs:
       - build
       - deploy:
-          - requires:
-              - build
+          requires:
+            - build
       - integration-test:
           requires:
             - deploy
