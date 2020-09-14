@@ -5,10 +5,23 @@ const ssm = require('@middy/ssm')
 const { serviceName, stage } = process.env
 const dynamoDB = new DocumentClient()
 
-const ssmConfig = {
+const defaultResultsSSMConfig = {
   cache: true,
   cacheExpiryInMillis: 5 * 60 * 1000, // 5 mins
   names: { config: `/${serviceName}/${stage}/get-restaurants/config` },
+  onChange: () => {
+    const config = JSON.parse(process.env.config)
+    process.env.defaultResults = config.defaultResults
+  }
+}
+
+const secretStringSSMConfig = {
+  cache: true,
+  cacheExpiryInMillis: 5 * 60 * 1000, // 5 mins
+  names: {
+    secretString: `/${serviceName}/${stage}/search-restaurants/secretString`,
+  },
+  setToContext: true,
   onChange: () => {
     const config = JSON.parse(process.env.config)
     process.env.defaultResults = config.defaultResults
@@ -35,10 +48,13 @@ const handler = async (event, context) => {
   const req = JSON.parse(event.body)
   const theme = req.theme
   const restaurants = await findRestaurantsByTheme(theme, process.env.defaultResults)
+  console.info('Secret String SSM', context.secretString)
   return {
     statusCode: 200,
     body: JSON.stringify(restaurants)
   }
 }
 
-module.exports.handler = middy(handler).use(ssm(ssmConfig))
+module.exports.handler = middy(handler)
+  .use(ssm(defaultResultsSSMConfig))
+  .use(ssm(secretStringSSMConfig))
