@@ -3,7 +3,7 @@ orbs:
   node: circleci/node@1.1
 
 jobs:
-  integration-test:
+  build:
     docker:
       - image: circleci/node
     steps:
@@ -11,7 +11,6 @@ jobs:
       - node/with-cache:
           steps:
             - run: npm ci
-            - run: npm run test # run our integration tests
   deploy:
     docker:
       - image: circleci/node
@@ -19,7 +18,18 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - run: npm run sls -- deploy
+            - run: npm run sls -- deploy -s e2e-test
+            - run: npm run dotEnv -- -s e2e-test
+            - run: node seed-restaurants.js
+  integration-test:
+    docker:
+      - image: circleci/node
+    steps:
+      - checkout
+      - node/with-cache:
+          steps:
+            - run: npm run dotEnv -- -s e2e-test
+            - run: npm run cross-env TEST_MODE=handler jest # run integration tests
   acceptance-test:
     docker:
       - image: circleci/node
@@ -27,16 +37,32 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - run: npm run acceptance
+            - run: npm run dotEnv -- -s e2e-test
+            - run: npm run cross-env TEST_MODE=http jest  # run acceptance tests
+
+  clean:
+    docker:
+      - image: circleci/node
+    steps:
+      - checkout
+      - node/with-cache:
+          steps:
+            - run: npm run sls -- remove -s e2e-test
 
 workflows:
   version: 2
   dev:
     jobs:
-      - integration-test
+      - build
       - deploy:
-          requires:
-            - integration-test
-      - acceptance-test:
+          - requires:
+              - build
+      - integration-test:
           requires:
             - deploy
+      - acceptance-test:
+          requires:
+            - integration-test
+      - clean:
+          requires:
+            - acceptance-test
