@@ -11,16 +11,6 @@ jobs:
       - node/with-cache:
           steps:
             - run: npm ci
-  deploy:
-    docker:
-      - image: circleci/node
-    steps:
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: npm run sls -- deploy -s e2e-test
-            - run: npm run dotEnv -- -s e2e-test
-            - run: node seed-restaurants.js
   integration-test:
     docker:
       - image: circleci/node
@@ -28,8 +18,17 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - run: npm run dotEnv -- -s e2e-test
-            - run: npm run cross-env TEST_MODE=handler jest # run integration tests
+            - run: npm run test # run integration tests
+  deploy-e2e:
+    docker:
+      - image: circleci/node
+      steps:
+        - checkout
+        - node/with-cache:
+            steps:
+              - run: npm run sls -- deploy -s e2e-test
+              - run: npm run dotEnv -- -s e2e-test
+              - run: node seed-restaurants.js
   acceptance-test:
     docker:
       - image: circleci/node
@@ -37,9 +36,16 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - run: npm run dotEnv -- -s e2e-test
-            - run: npm run cross-env TEST_MODE=http jest  # run acceptance tests
-  clean:
+            - run: npm run ci:acceptance  # run acceptance tests
+  deploy:
+    docker:
+      - image: circleci/node
+    steps:
+      - checkout
+      - node/with-cache:
+          steps:
+            - run: npm run sls -- deploy
+  clean-e2e:
     docker:
       - image: circleci/node
     steps:
@@ -53,15 +59,18 @@ workflows:
   dev:
     jobs:
       - build
-      - deploy:
-          requires:
-            - build
       - integration-test:
           requires:
-            - deploy
-      - acceptance-test:
+            - build
+      - deploy-e2e:
           requires:
             - integration-test
-      - clean:
+      - acceptance-test:
+          requires:
+            - deploy-e2e
+      - deploy:
           requires:
             - acceptance-test
+      - clean-e2e:
+          requires:
+            - deploy-e2e
