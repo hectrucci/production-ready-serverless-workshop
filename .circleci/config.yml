@@ -22,13 +22,13 @@ jobs:
   deploy-e2e:
     docker:
       - image: circleci/node
-      steps:
-        - checkout
-        - node/with-cache:
-            steps:
-              - run: npm run sls -- deploy -s e2e-test
-              - run: npm run dotEnv -- -s e2e-test
-              - run: node seed-restaurants.js
+    steps:
+      - checkout
+      - node/with-cache:
+          steps:
+            - run: npm run sls -- deploy -s e2e-test
+            - run: npm run dotEnv -- -s e2e-test
+            - run: node seed-restaurants.js
   acceptance-test:
     docker:
       - image: circleci/node
