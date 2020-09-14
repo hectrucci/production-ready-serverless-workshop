@@ -51,6 +51,7 @@ jobs:
     steps:
       - checkout
       - node/with-cache:
+          when: always
           steps:
             - run: npm run sls -- remove -s e2e-test
 
@@ -73,4 +74,4 @@ workflows:
             - acceptance-test
       - clean-e2e:
           requires:
-            - deploy-e2e
+            - acceptance-test
