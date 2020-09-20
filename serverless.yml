@@ -122,9 +122,13 @@ functions:
 resources:
   Conditions:
     IsE2eTest:
-      Fn::Equals:
-        - ${self:provider.stage}
-        - dev
+      Fn::Or:
+        - Fn::Equals:
+            - ${self:provider.stage}
+            - dev
+        - Fn::Equals:
+            - ${self:provider.stage}
+            - e2e-test
 
   Resources:
     RestaurantsTable:
