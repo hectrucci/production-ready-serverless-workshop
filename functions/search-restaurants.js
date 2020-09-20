@@ -8,7 +8,7 @@ const dynamoDB = new DocumentClient()
 const defaultResultsSSMConfig = {
   cache: true,
   cacheExpiryInMillis: 5 * 60 * 1000, // 5 mins
-  names: { config: `/${serviceName}/${stage}/get-restaurants/config` },
+  names: { config: `/${serviceName}/${stage}/search-restaurants/config` },
   onChange: () => {
     const config = JSON.parse(process.env.config)
     process.env.defaultResults = config.defaultResults
