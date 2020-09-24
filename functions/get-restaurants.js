@@ -1,7 +1,7 @@
 const DocumentClient = require('aws-sdk/clients/dynamodb').DocumentClient
-const middy = require('@middy/core')
 const ssm = require('@middy/ssm')
 const Log = require('@dazn/lambda-powertools-logger')
+const wrap = require('@dazn/lambda-powertools-pattern-basic')
 
 const { serviceName, stage } = process.env
 const dynamoDB = new DocumentClient()
@@ -42,4 +42,4 @@ const handler = async (event, context) => {
   }
 }
 
-module.exports.handler = middy(handler).use(ssm(ssmConfig))
+module.exports.handler = wrap(handler).use(ssm(ssmConfig))
