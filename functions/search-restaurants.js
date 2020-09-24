@@ -1,9 +1,12 @@
 const DocumentClient = require('aws-sdk/clients/dynamodb').DocumentClient
 const middy = require('@middy/core')
 const ssm = require('@middy/ssm')
+const XRay = require('aws-xray-sdk-core')
 
 const { serviceName, stage } = process.env
 const dynamoDB = new DocumentClient()
+
+XRay.captureAWSClient(dynamoDB.service)
 
 const defaultResultsSSMConfig = {
   cache: true,

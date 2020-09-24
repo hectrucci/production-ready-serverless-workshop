@@ -3,20 +3,32 @@ service: workshop-${self:custom.name}
 custom:
   name: Hector
   email: hector.atz5@gmail.com
-  stage: ${self:provider.stage}
+  stage: ${opt:stage, self:provider.stage}
   logLevel:
     prod: ERROR
     default: INFO
+  serverless-iam-roles-per-function:
+    defaultInherit: true
 
 provider:
   name: aws
   runtime: nodejs12.x
-  stage: ${opt:stage, 'dev'}
+  stage: dev
   environment:
     serviceName: ${self:service}
     stage: ${self:custom.stage}
     LOG_LEVEL: ${self:custom.logLevel.${self:custom.stage}, self:custom.logLevel.default}
     SAMPLE_DEBUG_LOG_RATE: 0.1
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+  tracing:
+    apiGateway: true
+    lambda: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource: "*"
 
 functions:
   get-index:

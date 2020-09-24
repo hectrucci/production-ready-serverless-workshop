@@ -5,6 +5,9 @@ const aws4 = require('aws4')
 const URL = require('url')
 const Log = require('@dazn/lambda-powertools-logger')
 const wrap = require('@dazn/lambda-powertools-pattern-basic')
+const AWSXRay = require('aws-xray-sdk-core')
+
+AWSXRay.captureHTTPsGlobal(require('https'))
 
 const awsRegion = process.env.AWS_REGION
 const restaurantsApiRoot = process.env.restaurants_api
