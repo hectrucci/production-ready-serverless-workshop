@@ -6,6 +6,7 @@ const URL = require('url')
 const Log = require('@dazn/lambda-powertools-logger')
 const wrap = require('@dazn/lambda-powertools-pattern-basic')
 const AWSXRay = require('aws-xray-sdk-core')
+const CorrelationIds = require('@dazn/lambda-powertools-correlation-ids')
 
 AWSXRay.captureHTTPsGlobal(require('https'))
 
@@ -31,7 +32,7 @@ const getRestaurants = async () => {
   aws4.sign(opts)
 
   const httpReq = http.get(restaurantsApiRoot, {
-    headers: opts.headers
+    headers: Object.assign({}, opts.headers, CorrelationIds.get())
   })
   return (await httpReq).data
 }

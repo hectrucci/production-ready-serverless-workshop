@@ -1,5 +1,6 @@
 const SQS = require('aws-sdk/clients/sqs')
-const { ReplaySubject } = require("rxjs")
+const { ReplaySubject } = require('rxjs')
+const _ = require('lodash')
 
 const messages = new ReplaySubject(100)
 const messageIds = new Set()
@@ -58,7 +59,12 @@ const waitForMessage = (sourceType, source, message) => {
   let subscription
   return new Promise((resolve) => {
     subscription = messages.subscribe(incomingMessage => {
+      const incomingMessageObj = JSON.parse(incomingMessage.message)
       //console.info('has', incomingMessage)
+      if (_.has(incomingMessageObj, 'detail')) {
+        delete incomingMessageObj.detail.__context__
+        incomingMessage.message = JSON.stringify(incomingMessageObj)
+      }
       if (incomingMessage.sourceType === sourceType &&
         incomingMessage.source === source &&
         incomingMessage.message === message) {

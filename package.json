@@ -28,6 +28,8 @@
     "serverless-pseudo-parameters": "^2.5.0"
   },
   "dependencies": {
+    "@dazn/lambda-powertools-correlation-ids": "^1.24.1",
+    "@dazn/lambda-powertools-eventbridge-client": "^1.26.0",
     "@dazn/lambda-powertools-logger": "^1.24.1",
     "@dazn/lambda-powertools-pattern-basic": "^1.27.0",
     "@middy/core": "^1.4.0",
